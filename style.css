@@ -54,7 +54,7 @@ body::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; he
 }
 
 .brand-logo {
-    width: 60px;
+    width: 280px;
     height: auto;
 }
 
@@ -641,4 +641,5 @@ body::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; he
     .history-table td {
         padding: 10px;
     }
+
 }
