@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockSense - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="header">
+        <img src="STOCKSENCE LOGO.png" alt="StockSense Logo" class="brand-logo">
+        <p>Inventory Management System</p>
+    </div>
+
+    <div class="login-container">
+        <h2>Welcome</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <input type="text" id="username" class="input-field" placeholder="Username">
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" class="input-field" placeholder="Password">
+            </div>
+            <div class="form-group">
+                <button type="submit" id="loginBtn" class="login-btn">Login</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Redirect to dashboard if already authenticated
+        fetch('/api/session')
+            .then(r => r.json())
+            .then(d => { if (d.authenticated) window.location.href = 'dashboard.html'; })
+            .catch(() => {});
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const userEl = document.getElementById('username');
+            const passEl = document.getElementById('password');
+            const btn    = document.getElementById('loginBtn');
+
+            const username = userEl.value.trim();
+            const password = passEl.value;
+
+            if (!username || !password) {
+                showError(userEl, passEl, btn, 'Fill in both fields');
+                return;
+            }
+
+            btn.innerText  = 'Logging in…';
+            btn.disabled   = true;
+
+            try {
+                const res  = await fetch('/api/login', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    window.location.href = 'dashboard.html';
+                } else {
+                    const msg = data.error || 'Login failed';
+                    showError(userEl, passEl, btn, msg);
+                }
+            } catch (_) {
+                showError(userEl, passEl, btn, 'Network error — is the server running?');
+            }
+        });
+
+        function showError(userEl, passEl, btn, message) {
+            userEl.classList.add('error');
+            passEl.classList.add('error');
+            btn.innerText  = message;
+            btn.disabled   = false;
+            btn.classList.add('error-btn');
+
+            userEl.onfocus = function() {
+                this.classList.remove('error');
+                passEl.classList.remove('error');
+                btn.innerText = 'Login';
+                btn.classList.remove('error-btn');
+            };
+            passEl.onfocus = function() {
+                userEl.classList.remove('error');
+                this.classList.remove('error');
+                btn.innerText = 'Login';
+                btn.classList.remove('error-btn');
+            };
+        }
+    </script>
+</body>
+</html>
